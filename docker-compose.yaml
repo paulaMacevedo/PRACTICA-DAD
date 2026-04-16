@@ -51,6 +51,19 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
     networks:
       - cpd-network
+  
+  balancer:
+    image: haproxy:2.4
+    container_name: haproxy-balancer
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - api-service
+    networks:
+      - cpd-network
+
 
 networks:
   cpd-network:
