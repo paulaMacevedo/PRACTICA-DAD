@@ -1,0 +1,62 @@
+version: '3.8'
+services:
+  mysql-instances:
+    image: mysql:8.0
+    container_name: mysql-instances
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: instances_db
+      MYSQL_USER: user_instances
+      MYSQL_PASSWORD: passwordinstances
+    volumes:
+      - instances_data:/var/lib/mysql
+    networks:
+      - cpd-network
+
+  mysql-networks:
+    image: mysql:8.0
+    container_name: mysql-networks
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: networks_db
+      MYSQL_USER: user_networks
+      MYSQL_PASSWORD: passwordnetworks
+    volumes:
+      - networks_data:/var/lib/mysql
+    networks:
+      - cpd-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-cpd
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - cpd-network
+
+  api-service:
+    build: ./api-service
+    container_name: api-service
+    depends_on:
+      - mysql-instances
+      - mysql-networks
+      - rabbitmq
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-instances:3306/instances_db
+      SPRING_DATASOURCE_USERNAME: user_instances
+      SPRING_DATASOURCE_PASSWORD: passwordinstances
+      SPRING_RABBITMQ_HOST: rabbitmq
+    networks:
+      - cpd-network
+
+networks:
+  cpd-network:
+    driver: bridge
+
+volumes:
+  instances_data:
+  networks_data:
+  rabbitmq_data:
