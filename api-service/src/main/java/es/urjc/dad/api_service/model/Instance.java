@@ -15,17 +15,7 @@ public class Instance {
     public Instance(){
 
     }
-     public Instance(String name, Integer memory, Integer cpu, Integer disk, String mask,
-            String status, Instance dependsOn) {
-        this.name = name;
-        this.memory = memory;
-        this.cpu = cpu;
-        this.disk = disk;
-        this.mask = mask;
-        this.status = "PENDING";
-        this.dependsOn = dependsOn;
-        this.ip = null;
-    }
+    
 
    
  // Getters and setters

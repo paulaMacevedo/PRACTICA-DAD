@@ -50,4 +50,5 @@ public class InstanceController {
         instanceServiceClient.deleteInstance(name);
         return ResponseEntity.noContent().build();
     }
+    
 }
