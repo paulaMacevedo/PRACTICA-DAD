@@ -1,0 +1,26 @@
+services:
+  mysql-dev:
+    image: mysql:8.0
+    container_name: mysql-net-service
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: net_db
+      MYSQL_USER: net_user
+      MYSQL_PASSWORD: net_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-dev-data:/var/lib/mysql
+
+  rabbitmq-dev:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-net-service
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    ports:
+      - "5672:5672"   # Port where messages are sent
+      - "15672:15672" # WebUI port
+
+volumes:
+  mysql-dev-data:
