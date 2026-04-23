@@ -1,6 +1,10 @@
 package es.urjc.dad.instanceservice.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
 public class Instance {
@@ -23,20 +27,7 @@ public class Instance {
 
     public Instance() {} // Default constructor for JPA
 
-    // Constructor for the creation of an instance
-
-    public Instance(String name, Integer memory, Integer cpu, Integer disk, String mask,
-            String status, String dependsOn) {
-        this.name = name;
-        this.memory = memory;
-        this.cpu = cpu;
-        this.disk = disk;
-        this.mask = mask;
-        this.status = "PENDING";
-        this.dependsOn = dependsOn;
-        this.ip = null;
-    }
-
+    
     // Getters and setters
     public Long getId() {
         return id;
