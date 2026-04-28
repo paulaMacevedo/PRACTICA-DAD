@@ -61,8 +61,8 @@ services:
     build: ./instance-service
     container_name: instance-service-1
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-instances:3306/networks_db
-      SPRING_DATASOURCE_USERNAME: user_networks
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-instances:3306/instances_db
+      SPRING_DATASOURCE_USERNAME: user_instances
       SPRING_DATASOURCE_PASSWORD: passwordinstances
       SPRING_RABBITMQ_HOST: rabbitmq-cpd
     depends_on:
@@ -77,8 +77,8 @@ services:
     build: ./instance-service
     container_name: instance-service-2
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-instances:3306/networks_db
-      SPRING_DATASOURCE_USERNAME: user_networks
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-instances:3306/instances_db
+      SPRING_DATASOURCE_USERNAME: user_instances
       SPRING_DATASOURCE_PASSWORD: passwordinstances
       SPRING_RABBITMQ_HOST: rabbitmq-cpd
     depends_on:
@@ -95,8 +95,8 @@ services:
     container_name: net-service-1
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq-cpd
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-instances:3306/instances_db
-      SPRING_DATASOURCE_USERNAME: user_instances
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-networks:3306/networks_db
+      SPRING_DATASOURCE_USERNAME: user_networks
       SPRING_DATASOURCE_PASSWORD: passwordnetworks
     depends_on:
       rabbitmq:
@@ -110,8 +110,8 @@ services:
     container_name: net-service-2
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq-cpd
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-instances:3306/instances_db
-      SPRING_DATASOURCE_USERNAME: user_instances
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-networks:3306/networks_db
+      SPRING_DATASOURCE_USERNAME: user_networks
       SPRING_DATASOURCE_PASSWORD: passwordnetworks
     depends_on:
       rabbitmq:
