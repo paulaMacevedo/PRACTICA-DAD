@@ -53,10 +53,6 @@ public class InstanceController {
     @DeleteMapping("/{name}")
 public ResponseEntity<Void> deleteInstance(@PathVariable String name) {
 
-    if (name == null || name.isBlank()) {
-        return ResponseEntity.badRequest().build();
-    }
-
      instanceServiceClient.deleteInstance(name);
      return ResponseEntity.badRequest().build();
 }
