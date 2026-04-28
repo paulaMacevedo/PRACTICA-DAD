@@ -1,6 +1,8 @@
 package es.urjc.dad.net_service.config;
 
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,6 +20,11 @@ public class RabbitConfig {
 	@Bean
 	public Queue netCreationRequestsQueue() {
 		return new Queue(NET_CREATION_REQUESTS, false);
+	}
+
+	@Bean
+	public MessageConverter jsonMessageConverter() {
+		return new Jackson2JsonMessageConverter();
 	}
 
 	@Bean
