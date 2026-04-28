@@ -1,5 +1,8 @@
 version: '3.8'
+
 services:
+
+#bases de datos
   mysql-instances:
     image: mysql:8.0
     container_name: mysql-instances
@@ -10,6 +13,11 @@ services:
       MYSQL_PASSWORD: passwordinstances
     volumes:
       - instances_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h","localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - cpd-network
 
@@ -23,9 +31,15 @@ services:
       MYSQL_PASSWORD: passwordnetworks
     volumes:
       - networks_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h","localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - cpd-network
 
+#cola de mensajes
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq-cpd
@@ -34,36 +48,115 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - cpd-network
 
+ #instance-service
+  instance-service-1:
+    build: ./instance-service
+    container_name: instance-service-1
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-instances:3306/networks_db
+      SPRING_DATASOURCE_USERNAME: user_networks
+      SPRING_DATASOURCE_PASSWORD: passwordinstances
+      SPRING_RABBITMQ_HOST: rabbitmq-cpd
+    depends_on:
+      mysql-instances:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - cpd-network
+
+  instance-service-2:
+    build: ./instance-service
+    container_name: instance-service-2
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-instances:3306/networks_db
+      SPRING_DATASOURCE_USERNAME: user_networks
+      SPRING_DATASOURCE_PASSWORD: passwordinstances
+      SPRING_RABBITMQ_HOST: rabbitmq-cpd
+    depends_on:
+      mysql-instances:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - cpd-network
+
+#net-sevice
+  net-service-1:
+    build: ./net-service
+    container_name: net-service-1
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq-cpd
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-instances:3306/instances_db
+      SPRING_DATASOURCE_USERNAME: user_instances
+      SPRING_DATASOURCE_PASSWORD: passwordnetworks
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mysql-networks:
+        condition: service_healthy
+    networks:
+      - cpd-network
+  net-service-2:
+    build: ./net-service
+    container_name: net-service-2
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq-cpd
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-instances:3306/instances_db
+      SPRING_DATASOURCE_USERNAME: user_instances
+      SPRING_DATASOURCE_PASSWORD: passwordnetworks
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mysql-networks:
+        condition: service_healthy
+    networks:
+      - cpd-network
+
+#api-service
   api-service:
     build: ./api-service
     container_name: api-service
-    depends_on:
-      - mysql-instances
-      - mysql-networks
-      - rabbitmq
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-instances:3306/instances_db
-      SPRING_DATASOURCE_USERNAME: user_instances
-      SPRING_DATASOURCE_PASSWORD: passwordinstances
-      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_HOST: rabbitmq-cpd
+      INSTANCE_SERVICE_URL: http://haproxy-balancer:8081
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      instance-service-1:
+        condition: service_started
+      instance-service-2:
+        condition: service_started
+      net-service-1:
+        condition: service_started
+      net-service-2:
+        condition: service_started
+
     networks:
       - cpd-network
-  
+ 
+
   balancer:
     image: haproxy:2.4
     container_name: haproxy-balancer
     volumes:
-      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     ports:
       - "80:80"
+      - "8404:8404"
     depends_on:
       - api-service
     networks:
       - cpd-network
-
 
 networks:
   cpd-network:
