@@ -12,35 +12,38 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.urjc.dad.api_service.messaging.NetworkProducer;
 import es.urjc.dad.api_service.model.Network;
-import es.urjc.dad.api_service.service.NetworkServiceClient;
+import es.urjc.dad.api_service.service.NetworkService;
 
 @RestController
-@RequestMapping("/networks")
+@RequestMapping("/api/networks")
 public class NetworkController {
 
     private final NetworkProducer producer;
-    private final NetworkServiceClient client;
+    private final NetworkService networkService;
 
-    public NetworkController(NetworkProducer producer, NetworkServiceClient client) {
+    public NetworkController(NetworkProducer producer, NetworkService networkService) {
         this.producer = producer;
-        this.client = client;
+        this.networkService = networkService;
     }
 
     @PostMapping
     public ResponseEntity<String> createNetwork(@RequestBody Network network) {
-
+        // No se guarda en la BD local, solo se reenvía la solicitud a net-service.
         producer.sendNetworkCreationRequest(network.getMask());
 
         return ResponseEntity.accepted().body("Network creation request sent");
     }
-     @GetMapping
-    public ResponseEntity<List<Network>> getAllInstances() {
-        return ResponseEntity.ok(client.getAllNetworks());
-    }
-    
 
-    @GetMapping("/{name}")
-    public ResponseEntity<Network> getInstanceByName(@PathVariable String name) {
-        return ResponseEntity.ok(client.getNetworkByName(name));
+    @GetMapping
+    public ResponseEntity<List<Network>> getAllNetworks() {
+        return ResponseEntity.ok(networkService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Network> getNetworkById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+            networkService.findById(id)
+                .orElseThrow(() -> new RuntimeException("Red no encontrada con id: " + id))
+        );
     }
 }
