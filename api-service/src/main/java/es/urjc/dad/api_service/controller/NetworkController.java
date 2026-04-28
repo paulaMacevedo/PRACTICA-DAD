@@ -37,6 +37,7 @@ public class NetworkController {
     public ResponseEntity<List<Network>> getAllInstances() {
         return ResponseEntity.ok(client.getAllNetworks());
     }
+    
 
     @GetMapping("/{name}")
     public ResponseEntity<Network> getInstanceByName(@PathVariable String name) {
