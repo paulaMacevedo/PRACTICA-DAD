@@ -42,13 +42,23 @@ public class InstanceController {
 
     @PutMapping("/{name}")
     public ResponseEntity<Instance> updateInstance(@PathVariable String name, @RequestBody Instance instance) {
-        return ResponseEntity.ok(instanceServiceClient.updateInstance(name, instance));
+        if (name == null || name.isBlank()){
+            return ResponseEntity.notFound().build();
+        }else{
+            return ResponseEntity.ok(instanceServiceClient.updateInstance(name, instance));
+        }
     }
 
+
     @DeleteMapping("/{name}")
-    public ResponseEntity<Void> deleteInstance(@PathVariable String name) {
-        instanceServiceClient.deleteInstance(name);
-        return ResponseEntity.noContent().build();
+public ResponseEntity<Void> deleteInstance(@PathVariable String name) {
+
+    if (name == null || name.isBlank()) {
+        return ResponseEntity.badRequest().build();
     }
+
+     instanceServiceClient.deleteInstance(name);
+     return ResponseEntity.badRequest().build();
+}
     
 }
