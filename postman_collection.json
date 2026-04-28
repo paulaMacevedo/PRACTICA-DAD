@@ -1,0 +1,298 @@
+{
+	"info": {
+		"_postman_id": "ebee3b8f-804a-4aac-b33c-3b94a995a951",
+		"name": "Práctica 25-26",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "371566"
+	},
+	"item": [
+		{
+			"name": "01- Create new network 172.1.0.0",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"mask\": \"172.1.0.0\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/networks/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"networks",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02 - Get all networks",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/networks/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"networks",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03 - Get a network by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/networks/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"networks",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04 - Create a new instance (db)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"db\",\n    \"memory\": 64,\n    \"cpus\": 8,\n    \"mask\": \"172.1.0.0\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/instances/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"instances",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "05 - Get the instance db",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/instances/db",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"instances",
+						"db"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06 - Create new instance (web)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"web\",\n    \"memory\": 16,\n    \"cpus\": 4,\n    \"mask\": \"172.1.0.0\",\n    \"dependsOn\": \"db\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/instances/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"instances",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "07 - Get the instance web",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/instances/web",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"instances",
+						"web"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "08 - Get all instances",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/instances/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"instances",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "09 - Update instance web",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"cpu\":8,\n    \"memory\": 32,\n    \"disk\":100\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/instances/web",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"instances",
+						"web"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10 - Delete network 172.1.0.0",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/networks/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"networks",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "11 - Delete instance db",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/instances/db",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"instances",
+						"db"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "12 - Delete instance web",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/instances/web",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"instances",
+						"web"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
