@@ -1,7 +1,9 @@
 package es.urjc.dad.instanceservice.controller;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,41 +15,116 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.urjc.dad.instanceservice.model.Instance;
+import es.urjc.dad.instanceservice.repository.InstanceRepository;
+import es.urjc.dad.instanceservice.messaging.InstanceMessageProducer;
 
 @RestController
 @RequestMapping("/instances") // All the URL's start with /instances
 
 public class InstanceController {
 
-    private static List<Instance> instances = new ArrayList<>();
+    private InstanceRepository repository;
+    private InstanceMessageProducer messageProducer;
+
+
+    public InstanceController(InstanceRepository repository,
+            InstanceMessageProducer messageProducer) {
+        this.repository = repository;
+        this.messageProducer = messageProducer;
+    }
 
     @PostMapping
-    public Instance createInstance(@RequestBody Instance instance) {
-        instances.add(instance);
-        return instance;
+    public ResponseEntity<?> createInstance(@RequestBody Instance instance) {
+        // Check if the instance name is already taken
+        if (repository.findByName(instance.getName()).isPresent()) {
+            return ResponseEntity.status(409)
+                    .body("Instance with name " + instance.getName() + " already exists."); // Return
+                                                                                            // 409
+                                                                                            // Conflict
+                                                                                            // if
+                                                                                            // name
+                                                                                            // is
+                                                                                            // taken
+        }
+
+
+        instance.setIp(null);
+        instance.setStatus("PENDING");
+
+        Instance savedInstance = repository.save(instance);
+
+        messageProducer.requestIpAssignment(savedInstance.getName(), savedInstance.getMask());
+
+
+        return ResponseEntity.ok(savedInstance);
+    }
+
+    @GetMapping
+    public List<Instance> getAllInstances() {
+        return repository.findAll().stream()
+                .filter(instance -> !"DELETED".equals(instance.getStatus())) // Exclude deleted
+                                                                             // instances
+                .toList();
     }
 
     @GetMapping("/{name}")
-    public Instance getInstance(@PathVariable String name) {
-        return instances.stream()
-                .filter(i -> i.getName().equals(name))
-                .findFirst()
-                .orElse(null);
-    }
-    
-    @DeleteMapping("/{name}")
-    public void deleteInstance(@PathVariable String name) {
-    instances.removeIf(i -> i.getName().equals(name));
-    }
+    public ResponseEntity<Instance> getInstance(@PathVariable String name) {
 
-  @PutMapping("/{name}")
-    public Instance updateInstance(@PathVariable String name, @RequestBody Instance updated) {
-     for (int i = 0; i < instances.size(); i++) {
-        if (instances.get(i).getName().equals(name)) {
-            instances.set(i, updated); 
-            return instances.get(i);
+        Optional<Instance> instance = repository.findByName(name);
+        if (instance.isPresent() && !"DELETED".equals(instance.get().getStatus())) {
+            return ResponseEntity.ok(instance.get());
+        } else {
+            return ResponseEntity.notFound().build(); // Return 404 if not found
         }
     }
-    return null;
+
+    @DeleteMapping("/{name}")
+    public ResponseEntity<?> deleteInstance(@PathVariable String name) {
+        Optional<Instance> optionalInstance = repository.findByName(name);
+
+        if (optionalInstance.isPresent()) {
+            Instance instance = optionalInstance.get();
+
+            if (repository.existsByDependsOnAndStatusNot(instance.getName(), "DELETED")) {
+                return ResponseEntity.status(409)
+                        .body("Cannot delete instance because other instances depend on it.");
+            }
+            instance.setStatus("DELETED");
+
+            messageProducer.requestIpUnassignment(instance.getName());
+
+            Instance savedInstance = repository.save(instance);
+            return ResponseEntity.ok(savedInstance);
+        } else {
+            return ResponseEntity.notFound().build(); // Return 404 if not found
+        }
+    }
+
+    @PutMapping("/{name}")
+    public ResponseEntity<Instance> updateInstance(@PathVariable String name,
+            @RequestBody Instance updated) {
+        Optional<Instance> existingInstance = repository.findByName(name);
+
+        if (existingInstance.isPresent()) {
+            Instance instanceToUpdate = existingInstance.get();
+
+            // Update the fields of the existing instance with the values from the updated instance
+            instanceToUpdate.setCpu(updated.getCpu());
+            instanceToUpdate.setMemory(updated.getMemory());
+            instanceToUpdate.setDisk(updated.getDisk());
+
+            instanceToUpdate.setStatus("RESTARTING");
+            instanceToUpdate.setIp(null);
+
+            Instance saved = repository.save(instanceToUpdate);
+
+            messageProducer.requestIpUnassignment(saved.getName());
+
+            return ResponseEntity.ok(saved);
+        } else {
+            return ResponseEntity.notFound().build(); // Return 404 if not found
+        }
+    }
+
 }
-}
+

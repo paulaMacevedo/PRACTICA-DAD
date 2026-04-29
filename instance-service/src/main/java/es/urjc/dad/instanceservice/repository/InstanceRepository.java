@@ -8,4 +8,6 @@ public interface InstanceRepository extends JpaRepository<Instance, Long> {
 
 
     Optional<Instance> findByName(String name);
+
+    boolean existsByDependsOnAndStatusNot(String dependsOn, String status);
 }

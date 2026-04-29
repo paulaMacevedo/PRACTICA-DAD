@@ -1,5 +1,6 @@
 package es.urjc.dad.instanceservice.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,22 +13,25 @@ public class Instance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = false)
+    @Column(unique = true)
     private String name; // Server unique name;
 
     private Integer memory; // Memory RAM in GB
+    @JsonProperty("cpus")
     private Integer cpu; // Number of CPU cores
+    @JsonProperty("disk")
     private Integer disk; // Disk space in GB
     private String mask; // Network mask
     private String ip; // IP address of the server inside the subnet
     private String status; // Status of the server
 
     @Column(name = "depends_on")
+    @JsonProperty("dependsOn")
     private String dependsOn; // Instance that this instance depends on, if any
 
     public Instance() {} // Default constructor for JPA
 
-    
+
     // Getters and setters
     public Long getId() {
         return id;
