@@ -1,8 +1,11 @@
 package es.urjc.dad.api_service.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +18,7 @@ import es.urjc.dad.api_service.model.Network;
 import es.urjc.dad.api_service.service.NetworkService;
 
 @RestController
-@RequestMapping("/api/networks")
+@RequestMapping("/api/networks/")
 public class NetworkController {
 
     private final NetworkProducer producer;
@@ -41,9 +44,20 @@ public class NetworkController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Network> getNetworkById(@PathVariable Long id) {
-        return ResponseEntity.ok(
-            networkService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Red no encontrada con id: " + id))
-        );
+        return ResponseEntity.ok(networkService.findById(id)
+                .orElseThrow(() -> new RuntimeException("Red no encontrada con id: " + id)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> deleteNetwork(@PathVariable Long id) {
+        producer.sendNetworkDeleteRequest(id);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("operation", "DELETE_NETWORK");
+        response.put("status", "ACCEPTED");
+        response.put("message",
+                "Network delete request accepted.  Verify status by querying the network");
+
+        return ResponseEntity.status(200).body(response);
     }
 }

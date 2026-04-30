@@ -19,18 +19,13 @@ public class NetworkServiceClient {
 
     // 🔹 GET ALL
     public List<Network> getAllNetworks() {
-        Network[] networks = restTemplate.getForObject(
-            "http://localhost:8082/networks",
-            Network[].class
-        );
+        Network[] networks =
+                restTemplate.getForObject("http://net-service-1:8080/networks/", Network[].class);
         return Arrays.asList(networks);
     }
 
     // 🔹 GET BY ID (IMPORTANTE)
     public Network getNetworkById(Long id) {
-        return restTemplate.getForObject(
-            "http://localhost:8082/networks/" + id,
-            Network.class
-        );
+        return restTemplate.getForObject("http://net-service-1:8080/networks/" + id, Network.class);
     }
 }

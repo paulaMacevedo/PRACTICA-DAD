@@ -15,10 +15,10 @@ import es.urjc.dad.api_service.model.Instance;
 
 @Service
 public class InstanceServiceClient {
-    
+
     private final RestTemplate restTemplate;
 
-    private final String instanceServiceUrl = "http://localhost:8081/instances";
+    private final String instanceServiceUrl = "http://haproxy-balancer:8081/instances";
 
     public InstanceServiceClient() {
         this.restTemplate = new RestTemplate();
@@ -29,12 +29,8 @@ public class InstanceServiceClient {
     }
 
     public List<Instance> getAllInstances() {
-        ResponseEntity<List<Instance>> response = restTemplate.exchange(
-                instanceServiceUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<Instance>>() {}
-        );
+        ResponseEntity<List<Instance>> response = restTemplate.exchange(instanceServiceUrl,
+                HttpMethod.GET, null, new ParameterizedTypeReference<List<Instance>>() {});
 
         return response.getBody();
     }
@@ -43,8 +39,10 @@ public class InstanceServiceClient {
         return restTemplate.getForObject(instanceServiceUrl + "/" + name, Instance.class);
     }
 
-    public void deleteInstance(String name) {
-        restTemplate.delete(instanceServiceUrl + "/" + name);
+    public Instance deleteInstance(String name) {
+        ResponseEntity<Instance> response = restTemplate.exchange(instanceServiceUrl + "/" + name,
+                HttpMethod.DELETE, null, Instance.class);
+        return response.getBody();
     }
 
     public Instance updateInstance(String name, Instance instance) {
@@ -53,12 +51,8 @@ public class InstanceServiceClient {
 
         HttpEntity<Instance> requestEntity = new HttpEntity<>(instance, headers);
 
-        ResponseEntity<Instance> response = restTemplate.exchange(
-                instanceServiceUrl + "/" + name,
-                HttpMethod.PUT,
-                requestEntity,
-                Instance.class
-        );
+        ResponseEntity<Instance> response = restTemplate.exchange(instanceServiceUrl + "/" + name,
+                HttpMethod.PUT, requestEntity, Instance.class);
 
         return response.getBody();
     }

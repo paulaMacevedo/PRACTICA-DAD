@@ -1,5 +1,6 @@
 package es.urjc.dad.instanceservice.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,7 +18,7 @@ public class Instance {
     private String name; // Server unique name;
 
     private Integer memory; // Memory RAM in GB
-    @JsonProperty("cpus")
+    @JsonAlias({"cpus", "cpu"})
     private Integer cpu; // Number of CPU cores
     @JsonProperty("disk")
     private Integer disk; // Disk space in GB

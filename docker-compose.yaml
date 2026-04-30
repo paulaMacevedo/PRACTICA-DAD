@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
 
-#bases de datos
+  #bases de datos
   mysql-instances:
     image: mysql:8.0
     container_name: mysql-instances
@@ -14,7 +14,7 @@ services:
     volumes:
       - instances_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h","localhost", "-u", "root", "-prootpassword"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,14 +32,14 @@ services:
     volumes:
       - networks_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h","localhost", "-u", "root", "-prootpassword"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword" ]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - cpd-network
 
-#cola de mensajes
+  #cola de mensajes
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq-cpd
@@ -49,14 +49,14 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - cpd-network
 
- #instance-service
+  #instance-service
   instance-service-1:
     build: ./instance-service
     container_name: instance-service-1
@@ -89,7 +89,7 @@ services:
     networks:
       - cpd-network
 
-#net-sevice
+  #net-sevice
   net-service-1:
     build: ./net-service
     container_name: net-service-1
@@ -121,16 +121,20 @@ services:
     networks:
       - cpd-network
 
-#api-service
+  #api-service
   api-service:
     build: ./api-service
     container_name: api-service
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq-cpd
       INSTANCE_SERVICE_URL: http://haproxy-balancer:8081
-
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-networks:3306/networks_db
+      SPRING_DATASOURCE_USERNAME: user_networks
+      SPRING_DATASOURCE_PASSWORD: passwordnetworks
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      mysql-networks:
         condition: service_healthy
       instance-service-1:
         condition: service_started
@@ -143,7 +147,6 @@ services:
 
     networks:
       - cpd-network
- 
 
   balancer:
     image: haproxy:2.4
@@ -152,6 +155,7 @@ services:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     ports:
       - "80:80"
+      - "8080:80"
       - "8404:8404"
     depends_on:
       - api-service

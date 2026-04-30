@@ -1,24 +1,31 @@
 package es.urjc.dad.api_service.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
+
 public class Instance {
     private Long id;
     private String name; // Server unique name;
     private String mask;// Network mask
     private String ip;// IP address of the server inside the subnet
     private String status;// Status of the server
+    @JsonAlias({"cpus", "cpu"})
     private Integer cpu;// Number of CPU cores
+    @JsonAlias("memory")
     private Integer memory; // Memory RAM in GB
+    @JsonAlias("disk")
     private Integer disk;// Disk space in GB
-    private Instance dependsOn;// Instance that this instance depends on, if any
+    @JsonAlias("dependsOn")
+    private String dependsOn;// Instance that this instance depends on, if any
 
     // Default constructor for JPA
-    public Instance(){
+    public Instance() {
 
     }
-    
 
-   
- // Getters and setters
+
+
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -83,14 +90,14 @@ public class Instance {
         this.disk = disk;
     }
 
-    public Instance getDependsOn() {
+    public String getDependsOn() {
         return dependsOn;
     }
 
-    public void setDependsOn(Instance dependsOn) {
+    public void setDependsOn(String dependsOn) {
         this.dependsOn = dependsOn;
     }
 
 
 
-    }
+}

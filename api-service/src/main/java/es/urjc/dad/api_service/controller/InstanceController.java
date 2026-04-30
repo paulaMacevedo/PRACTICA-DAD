@@ -16,21 +16,21 @@ import es.urjc.dad.api_service.model.Instance;
 import es.urjc.dad.api_service.service.InstanceServiceClient;
 
 @RestController
-@RequestMapping("/instances")
+@RequestMapping("/api/instances")
 public class InstanceController {
-     private final InstanceServiceClient instanceServiceClient;
+    private final InstanceServiceClient instanceServiceClient;
 
     public InstanceController(InstanceServiceClient instanceServiceClient) {
         this.instanceServiceClient = instanceServiceClient;
     }
 
-    @PostMapping
+    @PostMapping({"", "/"})
     public ResponseEntity<Instance> createInstance(@RequestBody Instance instance) {
         Instance createdInstance = instanceServiceClient.createInstance(instance);
         return ResponseEntity.ok(createdInstance);
     }
 
-    @GetMapping
+    @GetMapping({"", "/"})
     public ResponseEntity<List<Instance>> getAllInstances() {
         return ResponseEntity.ok(instanceServiceClient.getAllInstances());
     }
@@ -41,20 +41,30 @@ public class InstanceController {
     }
 
     @PutMapping("/{name}")
-    public ResponseEntity<Instance> updateInstance(@PathVariable String name, @RequestBody Instance instance) {
-        if (name == null || name.isBlank()){
+    public ResponseEntity<Instance> updateInstance(@PathVariable String name,
+            @RequestBody Instance instance) {
+        if (name == null || name.isBlank()) {
             return ResponseEntity.notFound().build();
-        }else{
+        } else {
             return ResponseEntity.ok(instanceServiceClient.updateInstance(name, instance));
         }
     }
 
 
     @DeleteMapping("/{name}")
-public ResponseEntity<Void> deleteInstance(@PathVariable String name) {
+    public ResponseEntity<?> deleteInstance(@PathVariable String name) {
+        try {
+            Instance deletedInstance = instanceServiceClient.deleteInstance(name);
+            if (deletedInstance == null) {
+                return ResponseEntity.notFound().build();
+            } else {
+                return ResponseEntity.ok(deletedInstance);
+            }
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            return ResponseEntity.status(e.getStatusCode())
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .body(e.getResponseBodyAsString());
+        }
+    }
 
-     instanceServiceClient.deleteInstance(name);
-     return ResponseEntity.badRequest().build();
-}
-    
 }

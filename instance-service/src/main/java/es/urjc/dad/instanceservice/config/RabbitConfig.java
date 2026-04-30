@@ -16,11 +16,11 @@ public class RabbitConfig {
 
     @Bean
     public Queue ipAssignResponsesQueue() {
-        return new Queue("ip-assign-responses", true);
+        return new Queue("ip-assign-responses", false);
     }
 
     @Bean
     public Queue ipUnassignResponsesQueue() {
-        return new Queue("ip-unassign-responses", true);
+        return new Queue("ip-unassign-responses", false);
     }
 }
